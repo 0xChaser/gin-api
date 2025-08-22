@@ -48,7 +48,7 @@ func getAlbumByID(c *gin.Context) {
 
 	for _, a := range albums {
 		if a.ID == id {
-			c.IndentedJSON(http.StatusFound, a)
+			c.IndentedJSON(http.StatusOK, a)
 			return
 		}
 	}
