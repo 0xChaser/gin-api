@@ -2,11 +2,13 @@ package main
 
 import (
 	"net/http"
+	"web-service-gin/database"
 
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
+	database.ConnectDB()
 	router := gin.Default()
 	router.GET("/albums", getAlbums)
 	router.GET("/albums/:id", getAlbumByID)
