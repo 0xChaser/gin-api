@@ -10,7 +10,6 @@ type Album struct {
 	Title  string    `json:"title" gorm:"not null"`
 	Artist string    `json:"artist" gorm:"not null"`
 	Price  float64   `json:"price" gorm:"not null"`
-	gorm.Model
 }
 
 func (album *Album) BeforeCreate(tx *gorm.DB) error {

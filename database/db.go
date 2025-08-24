@@ -5,6 +5,8 @@ import (
 	"log"
 	"os"
 
+	"web-service-gin/models"
+
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -37,4 +39,10 @@ func ConnectDB() {
 
 	DB = db
 	fmt.Println("Successfully connected to database!")
+
+	err = DB.AutoMigrate(&models.Album{})
+	if err != nil {
+		log.Fatalf("Error during migration: %v", err)
+	}
+	fmt.Println("Database migration completed!")
 }

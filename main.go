@@ -1,10 +1,13 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"web-service-gin/database"
+	"web-service-gin/models"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 func main() {
@@ -17,42 +20,37 @@ func main() {
 	router.Run("localhost:8080")
 }
 
-type album struct {
-	ID     string  `json:"id"`
-	Title  string  `json:"title"`
-	Artist string  `json:"artist"`
-	Price  float64 `json:"price"`
-}
-
-var albums = []album{
-	{ID: "1", Title: "Beyah", Artist: "Damso", Price: 56.99},
-	{ID: "2", Title: "Or Noir part.3", Artist: "Kaaris", Price: 17.99},
-	{ID: "3", Title: "Ce monde est cruel", Artist: "Vald", Price: 39.99},
-}
-
 func getAlbums(c *gin.Context) {
+	var albums []models.Album
+	database.DB.Find(&albums)
 	c.IndentedJSON(http.StatusOK, albums)
 }
 
 func addAlbums(c *gin.Context) {
-	var newAlbum album
+	var newAlbum models.Album
 
 	if err := c.BindJSON(&newAlbum); err != nil {
+		fmt.Println("Bind error:", err)
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
-	albums = append(albums, newAlbum)
+	database.DB.Create(&newAlbum)
 	c.IndentedJSON(http.StatusCreated, newAlbum)
 }
 
 func getAlbumByID(c *gin.Context) {
 	id := c.Param("id")
-
-	for _, a := range albums {
-		if a.ID == id {
-			c.IndentedJSON(http.StatusOK, a)
-			return
-		}
+	albumID, err := uuid.Parse(id)
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Invalid UUID format"})
+		return
 	}
-	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "Album not found"})
+
+	var album models.Album
+	if err := database.DB.Find(&album, "id = ?", albumID).Error; err != nil {
+		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "Album not found"})
+		return
+	}
+	c.IndentedJSON(http.StatusOK, album)
+
 }
