@@ -1,1 +1,4 @@
-# Restful API using Gin
+# Restful API in Goland
+
+- Gin Framework
+- GORM
